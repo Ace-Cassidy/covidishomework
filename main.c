@@ -1,7 +1,20 @@
 #include "trie.h"
 
-int main(int argc, char const *argv[])
-{
-    printf("hello world\n");
-    return 0;
+int main(int argc, char const *argv[]) {
+  FILE *f = fopen("./inputs/s1.fas", "r");
+  read_seq(f);
+  fclose(f);
+  printf("%s\n", SEQ);
+
+  f = fopen("./inputs/English_alphabet.txt", "r");
+  read_symtable(f);
+  fclose(f);
+
+  tree *T = create_tree(SEQ);
+
+  printf("Tree created\n");
+
+  BWT(T->root);
+
+  return 0;
 }

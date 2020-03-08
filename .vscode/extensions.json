@@ -7,7 +7,8 @@
 		"ms-vscode.cpptools",
 		"ms-vsliveshare.vsliveshare",
 		"tomoki1207.pdf",
-		"eamodio.gitlens"
+		"eamodio.gitlens",
+		"reageyao.biosyntax"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [
