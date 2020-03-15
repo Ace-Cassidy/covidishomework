@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
-                "inputs/colorblind_mouse_gene.fasta",
-                "inputs/DNA_alphabet.txt"
+                "inputs/s1.fas",
+                "inputs/English_alphabet.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

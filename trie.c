@@ -23,7 +23,7 @@ Dated: January, 31, 2020
 
 // file parsing //
 
-// read_SEQS: parse the given file for the first two sequence found
+// read_seq: parse the given file for the first two sequence found
 bool read_seq(FILE *f) {
   char line[2000];
   fseek(f, 0L, SEEK_END);
@@ -47,6 +47,7 @@ bool read_seq(FILE *f) {
   return true;
 }
 
+//
 bool read_symtable(FILE *f) {
   for (int i = 0; i < 128; i++)
     SYMTABLE[i] = NOEXIST;
@@ -71,10 +72,11 @@ bool read_symtable(FILE *f) {
 
 // trie operations //
 
+//
 node *create_node() {
   node *n = (node *)malloc(sizeof(node));
-  *n = (node){.edge_label.start = 0,
-              .edge_label.end = 0,
+  *n = (node){.edge_label.top = 0,
+              .edge_label.bottom = 0,
               .str_depth = 0,
               .suff_link = NULL};
   n->children = (node **)malloc(sizeof(node *) * SYMSIZE);
@@ -83,42 +85,47 @@ node *create_node() {
   return n;
 };
 
+//
 int edge_cmp(node *n, int cur_s) {
-  int length = n->edge_label.end - n->edge_label.start;
+  int length = n->edge_label.bottom - n->edge_label.top;
   for (int i = 0; i < length; i++) {
-    if (SEQ[n->edge_label.start + i] != SEQ[cur_s + i]) {
+    if (SEQ[n->edge_label.top + i] != SEQ[cur_s + i]) {
       return i;
     }
   }
   return length;
 }
 
-void print_tree(node *start) {
-  printf("Crnt %d StrD %d\n", start->id, start->str_depth);
-  if (start->children != NULL) {
+//
+void print_node(node *n) {
+  if (n->children != NULL) {
+    printf(" PARENT %-3d <== NODE %-3d at STRDEPTH %-3d ==> CHILDREN ",
+           n->parent->id, n->id, n->str_depth);
     for (int i = 0; i < SYMSIZE; i++) {
-      if (start->children[i] != NULL) {
-        print_tree(start->children[i]);
-      }
-    }
-  }
-}
-
-void print_children(node *start) {
-  if (start->children != NULL) {
-    printf("Cur %d", start->id);
-    for (int i = 0; i < SYMSIZE; i++) {
-      if (start->children[i] != NULL) {
-        printf("%d, ", start->children[i]->id);
+      if (n->children[i] != NULL) {
+        printf("%-3d ", n->children[i]->id);
       }
     }
     printf("\n");
   }
 }
 
-node *find_path(node *n, int index) {
+//
+void print_tree(node *n) {
+  print_node(n);
+  if (n->children != NULL) {
+    for (int i = 0; i < SYMSIZE; i++) {
+      if (n->children[i] != NULL) {
+        print_tree(n->children[i]);
+      }
+    }
+  }
+}
 
-  char c = SEQ[index];
+//
+node *find_path(node *n, int strindex) {
+
+  char c = SEQ[strindex];
   int child_no = SYMTABLE[(int)c];
   if (child_no == NOEXIST) {
     printf("%c isn't within the accepted alphabet.", c);
@@ -129,29 +136,29 @@ node *find_path(node *n, int index) {
     // NEW LEAF NODE
     node *new_leaf = create_node();
     n->children[child_no] = new_leaf;
-    *new_leaf = (node){.edge_label.start = index,
-                       .edge_label.end = SEQLEN - 1,
-                       .str_depth = n->str_depth + ((SEQLEN - 1) - index),
-                       .id = LEAFID++,
-                       .parent = n};
+    new_leaf->edge_label.top = strindex;
+    new_leaf->edge_label.bottom = SEQLEN - 1;
+    new_leaf->str_depth = n->str_depth + ((SEQLEN)-strindex);
+    new_leaf->id = LEAFID++;
+    new_leaf->parent = n;
     return new_leaf;
   } else {
     // INTERNAL NODE
     // check if child node edge path deviates from s
-    int break_count = edge_cmp(next, index);
-    if (break_count != n->edge_label.end - n->edge_label.start) {
+    int break_count = edge_cmp(next, strindex);
+    if (break_count != n->edge_label.bottom - n->edge_label.top) {
       node *new_child = create_node();
       // change parent to point to new child
       n->children[child_no] = new_child;
       new_child->parent = n;
       next->parent = new_child;
       // set new childs edge label
-      new_child->edge_label.start = next->edge_label.start;
-      new_child->edge_label.end = next->edge_label.start + break_count - 1;
+      new_child->edge_label.top = next->edge_label.top;
+      new_child->edge_label.bottom = next->edge_label.top + break_count - 1;
       // change og childs edge label to be shorter
-      next->edge_label.start = new_child->edge_label.end + 1;
+      next->edge_label.top = new_child->edge_label.bottom + 1;
       // set new childs child to og child
-      new_child->children[SYMTABLE[SEQ[next->edge_label.start]]] = next;
+      new_child->children[SYMTABLE[SEQ[next->edge_label.top]]] = next;
       // set id
       new_child->id = INTERNALID++;
       // set strdepth
@@ -159,120 +166,110 @@ node *find_path(node *n, int index) {
       // set next to child
       next = new_child;
     }
-    index += break_count;
-    return find_path(next, index); 
+    strindex += break_count;
+    return find_path(next, strindex);
   }
 }
 
-node *node_hops(node *start, int_tuple edge_label) {
-  char c;
-  int child_no;
-  int b_len = edge_label.end - edge_label.start + 1;
-  node *next;
-  if (edge_label.start > edge_label.end) {
+//
+int edge_len(int_tuple e) { return e.bottom - e.top + 1; }
+
+//
+node *node_hops(node *start, int_tuple b) {
+
+  // edge case //
+  if (b.top > b.bottom)
     return T->root;
-  }
-  while (b_len > 0) { // if b_len is positive
-    c = SEQ[edge_label.start];
-    child_no = SYMTABLE[(int)c];
+
+  int child_index;
+  node *cur_node;
+  // descend to v //
+  while (edge_len(b) > 0) {
+    child_index = SYMTABLE[(int)SEQ[b.top]];
     // go to child node
-    next = start->children[child_no];
+    cur_node = start->children[child_index];
     // decrement by path length of child
-    b_len -= next->edge_label.end - next->edge_label.start + 1;
-  }
-  if (b_len == 0) {
-    // found v exactly
-    return next;
-  } else {
-    // need to make v
-    // backtrack a node
-    node *n = next->parent;
-    // create internal node
-    node *new_child = create_node();
-    // set b_len to parent
-    n->children[child_no] = new_child;
-    b_len += next->edge_label.end - next->edge_label.start + 1;
-    // change parent to point to new child
-    new_child->parent = n;
-    next->parent = new_child;
-    // set new childs edge label
-    new_child->edge_label.start = next->edge_label.start;
-    new_child->edge_label.end = next->edge_label.start + b_len - 1;
-    // change of childs edge label to be shorter
-    next->edge_label.start = new_child->edge_label.end + 1;
-    // set new childs child to og child
-    new_child->children[SYMTABLE[SEQ[next->edge_label.start]]] = next;
-    // set id
-    new_child->id = INTERNALID++;
-    // set strdepth
-    new_child->str_depth = n->str_depth + b_len;
-    return new_child;
+    b.top += edge_len(cur_node->edge_label);
   }
 
-  // jump to next node based on first letter
-  // check if gone too far
-  // if not jump again
-  // else if jumped exactly far enough return node
-  // else if jumped too far go back one and .... create node????
+  // found v //
+  if (edge_len(b) == 0)
+    return cur_node;
+
+  // otherwise create v //
+  // go back up one node
+  node *par_node = cur_node->parent;
+  // calculate depth to insert new node, note len of b is negative
+  int break_depth = edge_len(cur_node->edge_label) + edge_len(b);
+  // create internal node
+  node *new_node = create_node();
+  par_node->children[child_index] = new_node;
+  // set parents
+  new_node->parent = par_node;
+  cur_node->parent = new_node;
+  // set new nodes edge label
+  new_node->edge_label.top = cur_node->edge_label.top;
+  new_node->edge_label.bottom = cur_node->edge_label.top + break_depth - 1;
+  // shorten cur nodes edge label
+  cur_node->edge_label.top = new_node->edge_label.bottom + 1;
+  // set new nodes child to cur_node
+  new_node->children[SYMTABLE[SEQ[cur_node->edge_label.top]]] = cur_node;
+  // set new_node id
+  new_node->id = INTERNALID++;
+  // set strdepth
+  new_node->str_depth = par_node->str_depth + break_depth;
+  return new_node;
 }
 
+//
 void BWT(node *n) {
-  if (n->children != NULL) {
-    for (int i = 0; i < SYMSIZE; i++) {
-      if (n->children[i] != NULL)
-        BWT(n->children[i]);
-    }
-  } else {
-    printf("%c", SEQ[(n->id - 1) < 0 ? SEQLEN - 1 : n->id - 1]);
+  for (int i = 0; i < SYMSIZE; i++) {
+    if (n->children[i] != NULL)
+      BWT(n->children[i]);
   }
+  if (n->id < SEQLEN)
+    printf("%c", SEQ[(n->id - 1) < 0 ? SEQLEN - 1 : n->id - 1]);
 }
 
+//
 node *suffix_cases(node *leaf) {
-  node *u = leaf->parent;
-  node *sl_u = u->suff_link;
-  node *v;
-  if (sl_u) { // sl(u) is known
-    if (u != T->root) {
-      // CASE IA   - sl(u) is known and u is not the root
-      v = u->suff_link;
-    } else {
-      // CASE IB   - sl(u) is known and u is the root
-      v = u;
+  node *u = leaf->parent, *u_prime = u->parent, *v_prime = u_prime->suff_link;
+  node *v = NULL;
+  if (u->suff_link) { // SL(u) is known
+    // CASE IA - SL(u) is known and u is not root
+    // CASE IB   - SL(u) is known and u is root
+    v = u->suff_link;
+  } else { // SL(u) is unknown
+    // CASE IIA - SL(u) is unknown and u' is not root
+    int_tuple edge = u->edge_label;
+    // CASE IIB - SL(u) is unknown and u' is root
+    if (u->parent == T->root) {
+      edge.top += 1;
     }
-  } else { // sl(u) is unknown
-    // got to u'
-    node *u_prime = u->parent;
-    int_tuple edge;
-    edge.start = u->edge_label.start + 1;
-    edge.end = u->edge_label.end;
-    if (u_prime != T->root) {
-      // CASE IIA  - sl(u) is unknown and u' is not the root
-      v = node_hops(u_prime->suff_link, edge);
-      u->suff_link = v;
-    } else {
-    }
-    // CASE IIB  - sl(u) is unknown and u' is the root
-    v = node_hops(u_prime->suff_link, edge);
+    v = node_hops(v_prime, edge);
     u->suff_link = v;
   }
   return v;
 }
 
+//
 tree *create_tree(char *s) {
   free(T);
   T = (tree *)malloc(sizeof(tree));
   T->root = create_node();
+  T->root->str_depth = 0;
   T->root->id = INTERNALID++;
-  T->root->suff_link = T->root;
+  T->root->edge_label = (int_tuple){0, 0};
   T->root->parent = T->root;
+  T->root->suff_link = T->root;
+
   node *leaf;
   node *v = T->root;
-  int offset = 0;
   for (int i = 0; i < SEQLEN; i++) {
+    printf("INSERT %s\n", SEQ + i);
     leaf = find_path(v, i + v->str_depth);
     v = suffix_cases(leaf);
     print_tree(T->root);
-    printf("\n");
     BWT(T->root);
     printf("\n");
   }

@@ -34,7 +34,7 @@ Dated: January, 31, 2020
 // TYPES //
 
 typedef struct int_tupl {
-  int start, end;
+  int top, bottom;
 } int_tuple;
 typedef struct node {
   int str_depth;
@@ -60,13 +60,13 @@ static int LEAFID;
 static int INTERNALID;
 
 // FUNCTIONS //
-tree *create_tree(char *s);
-node *suffix_cases(node *leaf);
-void BWT(node *n);
-node *node_hops(node *start, int_tuple edge_label);
-node *find_path(node *n, int index);
-void print_tree(node *start);
+bool read_seq(FILE *f);
+bool read_symtable(FILE *f);
 int edge_cmp(node *n, int cur_s);
 node *create_node();
-bool read_symtable(FILE *f);
-bool read_seq(FILE *f);
+node *find_path(node *n, int index);
+node *node_hops(node *start, int_tuple edge_label);
+node *suffix_cases(node *leaf);
+tree *create_tree(char *s);
+void BWT(node *n);
+void print_tree(node *start);
