@@ -1,11 +1,13 @@
 #include "trie.h"
 
 int main(int argc, char const *argv[]) {
-  FILE *f = fopen("./inputs/s1.fas", "r");
+  argc == 3 ?: (printf("bad invocation\n"), exit(1));
+
+  FILE *f = fopen(argv[1], "r");
   read_seq(f);
   fclose(f);
 
-  f = fopen("./inputs/English_alphabet.txt", "r");
+  f = fopen(argv[2], "r");
   read_symtable(f);
   fclose(f);
 

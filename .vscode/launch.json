@@ -9,7 +9,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/trie",
-            "args": [],
+            "args": [
+                "inputs/colorblind_mouse_gene.fasta",
+                "inputs/DNA_alphabet.txt"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
