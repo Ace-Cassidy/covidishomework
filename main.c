@@ -4,7 +4,6 @@ int main(int argc, char const *argv[]) {
   FILE *f = fopen("./inputs/s1.fas", "r");
   read_seq(f);
   fclose(f);
-  printf("%s\n", SEQ);
 
   f = fopen("./inputs/English_alphabet.txt", "r");
   read_symtable(f);
@@ -13,8 +12,6 @@ int main(int argc, char const *argv[]) {
   tree *T = create_tree(SEQ);
 
   printf("Tree created\n");
-
-  BWT(T->root);
 
   return 0;
 }
