@@ -105,16 +105,25 @@ int edge_cmp(node *n, int seq_index) {
   return length;
 }
 
+void print_edge(int_tuple edge) {
+  for (int i = edge.top; i <= edge.bottom; i++) {
+    putchar(SEQ[i]);
+  }
+}
+
 // print_node: pretty print the given node
 void print_node(node *n) {
   if (n->children != NULL) {
-    printf(" PARENT %-3d <== NODE %-3d at STRDEPTH %-3d ==> CHILDREN ",
-           n->parent->id, n->id, n->str_depth);
+    print_edge(n->edge_label);
+    printf(" (%d)\n", n->str_depth);
+    printf("PARENT %-3d <== NODE %-3d ==> CHILDREN ", n->parent->id, n->id);
     for (int i = 0; i < SYMSIZE; i++) {
       if (n->children[i] != NULL) {
         printf("%-3d ", n->children[i]->id);
       }
     }
+    printf("\n               SFFLNK %-3d\n",
+           n->suff_link ? n->suff_link->id : -1);
     printf("\n");
   }
 }
@@ -269,7 +278,7 @@ tree *create_tree() {
   T->root = create_node();
   T->root->str_depth = 0;
   T->root->id = INTERNALID++;
-  T->root->edge_label = (int_tuple){0, 0};
+  T->root->edge_label = (int_tuple){0, -1};
   T->root->parent = T->root;
   T->root->suff_link = T->root;
 
@@ -279,8 +288,10 @@ tree *create_tree() {
     leaf = find_path(v, i + v->str_depth);
     v = suffix_cases(leaf);
     if (DEBUG) {
-      printf("INSERT %s\n", SEQ + i);
+      printf("-------------------------------------------------------------\n");
+      printf("INSERT %s\n\n", SEQ + i);
       print_tree(T->root);
+      printf("BWT: ");
       BWT(T->root);
       printf("\n");
     }
