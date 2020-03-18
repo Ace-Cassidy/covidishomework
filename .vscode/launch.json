@@ -5,13 +5,61 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "debug",
+            "name": "debug banana",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
                 "inputs/s1.fas",
                 "inputs/English_alphabet.txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "debug mississippi",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/trie",
+            "args": [
+                "inputs/s2.fas",
+                "inputs/English_alphabet.txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "debug colorblind",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/trie",
+            "args": [
+                "inputs/colorblind_human_gene.fasta",
+                "inputs/DNA_alphabet.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

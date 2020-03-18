@@ -47,7 +47,7 @@ bool read_seq(FILE *f) {
   return true;
 }
 
-//
+// read_symtable: parse the file for alphabet
 bool read_symtable(FILE *f) {
   for (int i = 0; i < 128; i++)
     SYMTABLE[i] = NOEXIST;
@@ -70,33 +70,42 @@ bool read_symtable(FILE *f) {
   return true;
 }
 
+// utility //
+
+// edge_len: return the length (inclusive) of an int tuple
+int edge_len(int_tuple e) { return e.bottom - e.top + 1; }
+
 // trie operations //
 
-//
+// create_node: malloc and init node struct
 node *create_node() {
   node *n = (node *)malloc(sizeof(node));
-  *n = (node){.edge_label.top = 0,
-              .edge_label.bottom = 0,
-              .str_depth = 0,
+  // init fields
+  *n = (node){.str_depth = 0,
+              .id = -1,
+              .edge_label = (int_tuple){0, 0},
+              .parent = NULL,
               .suff_link = NULL};
+  // init children
   n->children = (node **)malloc(sizeof(node *) * SYMSIZE);
   for (int i = 0; i < SYMSIZE; i++)
     n->children[i] = NULL;
   return n;
 };
 
-//
-int edge_cmp(node *n, int cur_s) {
-  int length = n->edge_label.bottom - n->edge_label.top;
+// edge_cmp: return the index of first mismatch between edge and seq_index
+// returns edge_len if no mismatches (one past last index)
+int edge_cmp(node *n, int seq_index) {
+  int length = edge_len(n->edge_label);
   for (int i = 0; i < length; i++) {
-    if (SEQ[n->edge_label.top + i] != SEQ[cur_s + i]) {
+    if (SEQ[n->edge_label.top + i] != SEQ[seq_index + i]) {
       return i;
     }
   }
   return length;
 }
 
-//
+// print_node: pretty print the given node
 void print_node(node *n) {
   if (n->children != NULL) {
     printf(" PARENT %-3d <== NODE %-3d at STRDEPTH %-3d ==> CHILDREN ",
@@ -110,7 +119,7 @@ void print_node(node *n) {
   }
 }
 
-//
+// print_tree: recursively prints nodes via DFS
 void print_tree(node *n) {
   print_node(n);
   if (n->children != NULL) {
@@ -122,59 +131,60 @@ void print_tree(node *n) {
   }
 }
 
-//
-node *find_path(node *n, int strindex) {
+// find_path: find/insert suffix and return leaf node
+node *find_path(node *n, int seq_index) {
 
-  char c = SEQ[strindex];
-  int child_no = SYMTABLE[(int)c];
-  if (child_no == NOEXIST) {
+  // LOCATE NEXT NODE
+  char c = SEQ[seq_index];
+  int child_index = SYMTABLE[(int)c];
+  if (child_index == NOEXIST) {
     printf("%c isn't within the accepted alphabet.", c);
     return NULL;
   }
-  node *next = n->children[child_no];
+  node *next = n->children[child_index];
+
   if (next == NULL) {
     // NEW LEAF NODE
     node *new_leaf = create_node();
-    n->children[child_no] = new_leaf;
-    new_leaf->edge_label.top = strindex;
+    n->children[child_index] = new_leaf;
+    new_leaf->edge_label.top = seq_index;
     new_leaf->edge_label.bottom = SEQLEN - 1;
-    new_leaf->str_depth = n->str_depth + ((SEQLEN)-strindex);
+    new_leaf->str_depth = n->str_depth + ((SEQLEN)-seq_index);
     new_leaf->id = LEAFID++;
     new_leaf->parent = n;
     return new_leaf;
   } else {
-    // INTERNAL NODE
-    // check if child node edge path deviates from s
-    int break_count = edge_cmp(next, strindex);
-    if (break_count != n->edge_label.bottom - n->edge_label.top) {
+    // check if next node edge label deviates from seq_index
+    int mismatch = edge_cmp(next, seq_index);
+    if (mismatch != edge_len(next->edge_label)) {
+      // NEW INTERNAL NODE
       node *new_child = create_node();
       // change parent to point to new child
-      n->children[child_no] = new_child;
+      n->children[child_index] = new_child;
       new_child->parent = n;
       next->parent = new_child;
       // set new childs edge label
       new_child->edge_label.top = next->edge_label.top;
-      new_child->edge_label.bottom = next->edge_label.top + break_count - 1;
-      // change og childs edge label to be shorter
+      new_child->edge_label.bottom = next->edge_label.top + mismatch - 1;
+      // change old childs edge label to be shorter
       next->edge_label.top = new_child->edge_label.bottom + 1;
-      // set new childs child to og child
+      // set new childs child to old child
       new_child->children[SYMTABLE[SEQ[next->edge_label.top]]] = next;
       // set id
       new_child->id = INTERNALID++;
       // set strdepth
-      new_child->str_depth = n->str_depth + break_count;
+      new_child->str_depth = n->str_depth + mismatch;
       // set next to child
       next = new_child;
     }
-    strindex += break_count;
-    return find_path(next, strindex);
+    // RECURSE DOWN
+    seq_index += mismatch;
+    return find_path(next, seq_index);
   }
 }
 
-//
-int edge_len(int_tuple e) { return e.bottom - e.top + 1; }
-
-//
+// node_hops: quick traverse tree by assuming that each hop is correct
+// create internal node if last hop ends in edge middle
 node *node_hops(node *start, int_tuple b) {
 
   // edge case //
@@ -221,7 +231,7 @@ node *node_hops(node *start, int_tuple b) {
   return new_node;
 }
 
-//
+// BWT: semi unique encoding of leaf ordering for tree verification
 void BWT(node *n) {
   for (int i = 0; i < SYMSIZE; i++) {
     if (n->children[i] != NULL)
@@ -231,7 +241,7 @@ void BWT(node *n) {
     printf("%c", SEQ[(n->id - 1) < 0 ? SEQLEN - 1 : n->id - 1]);
 }
 
-//
+// suffix_cases: return suffix link of given leaf's parent
 node *suffix_cases(node *leaf) {
   node *u = leaf->parent, *u_prime = u->parent, *v_prime = u_prime->suff_link;
   node *v = NULL;
@@ -252,8 +262,8 @@ node *suffix_cases(node *leaf) {
   return v;
 }
 
-//
-tree *create_tree(char *s) {
+// create_tree: insert all suffixes of sequence into tree
+tree *create_tree() {
   free(T);
   T = (tree *)malloc(sizeof(tree));
   T->root = create_node();
@@ -266,12 +276,14 @@ tree *create_tree(char *s) {
   node *leaf;
   node *v = T->root;
   for (int i = 0; i < SEQLEN; i++) {
-    printf("INSERT %s\n", SEQ + i);
     leaf = find_path(v, i + v->str_depth);
     v = suffix_cases(leaf);
-    print_tree(T->root);
-    BWT(T->root);
-    printf("\n");
+    if (DEBUG) {
+      printf("INSERT %s\n", SEQ + i);
+      print_tree(T->root);
+      BWT(T->root);
+      printf("\n");
+    }
   }
   return T;
 }

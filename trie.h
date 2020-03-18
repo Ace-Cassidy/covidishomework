@@ -30,10 +30,10 @@ Dated: January, 31, 2020
 
 // MACROS //
 #define NOEXIST -1
-
+#define DEBUG 1
 // TYPES //
 
-typedef struct int_tupl {
+typedef struct int_tuple {
   int top, bottom;
 } int_tuple;
 typedef struct node {
@@ -41,8 +41,8 @@ typedef struct node {
   int id;
   int_tuple edge_label;
   struct node *parent;
-  struct node **children;
   struct node *suff_link;
+  struct node **children;
 } node;
 
 typedef struct tree {
@@ -60,13 +60,13 @@ static int LEAFID;
 static int INTERNALID;
 
 // FUNCTIONS //
-bool read_seq(FILE *f);
-bool read_symtable(FILE *f);
-int edge_cmp(node *n, int cur_s);
+bool read_seq(FILE *);
+bool read_symtable(FILE *);
+int edge_cmp(node *, int);
 node *create_node();
-node *find_path(node *n, int index);
-node *node_hops(node *start, int_tuple edge_label);
-node *suffix_cases(node *leaf);
-tree *create_tree(char *s);
-void BWT(node *n);
-void print_tree(node *start);
+node *find_path(node *, int);
+node *node_hops(node *, int_tuple);
+node *suffix_cases(node *);
+tree *create_tree();
+void BWT(node *);
+void print_tree(node *);
