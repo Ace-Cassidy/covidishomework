@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
-                "inputs/s1.fas",
-                "inputs/English_alphabet.txt"
+                "english-inputs/s1.fas",
+                "alphabets/English_alphabet.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -34,8 +34,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
-                "inputs/s2.fas",
-                "inputs/English_alphabet.txt"
+                "english-inputs/s2.fas",
+                "alphabets/English_alphabet.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -58,8 +58,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
-                "inputs/Human-BRCA2-cds.fasta",
-                "inputs/DNA_alphabet.txt"
+                "dna-inputs/Human-BRCA2-cds.fasta",
+                "alphabets/DNA_alphabet.txt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
