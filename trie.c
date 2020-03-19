@@ -248,7 +248,7 @@ void BWT(node *n) {
       BWT(n->children[i]);
   }
   if (n->id < SEQLEN)
-    printf("%c", SEQ[(n->id - 1) < 0 ? SEQLEN - 1 : n->id - 1]);
+    printf("%c\n", SEQ[(n->id - 1) < 0 ? SEQLEN - 1 : n->id - 1]);
 }
 
 // suffix_cases: return suffix link of given leaf's parent
@@ -290,11 +290,8 @@ tree *create_tree() {
     v = suffix_cases(leaf);
   }
   if (DEBUG) {
-      printf("-------------------------------------------------------------\n");
-      print_tree(T->root);
-      printf("BWT: ");
-      BWT(T->root);
-      printf("\n");
-    }
+    printf("-------------------------------------------------------------\n");
+    print_tree(T->root);
+  }
   return T;
 }

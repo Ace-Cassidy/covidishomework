@@ -53,12 +53,12 @@
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "debug colorblind",
+            "name": "debug BRCA",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/trie",
             "args": [
-                "inputs/colorblind_human_gene.fasta",
+                "inputs/Human-BRCA2-cds.fasta",
                 "inputs/DNA_alphabet.txt"
             ],
             "stopAtEntry": false,

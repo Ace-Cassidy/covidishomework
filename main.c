@@ -14,8 +14,6 @@ int main(int argc, char const *argv[]) {
   fclose(f);
 
   tree *T = create_tree(SEQ);
-
-  printf("Tree created\n");
-
+  BWT(T->root);
   return 0;
 }
