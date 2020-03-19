@@ -202,11 +202,12 @@ node *node_hops(node *start, int_tuple b) {
 
   int child_index;
   node *cur_node;
+  cur_node = start;
   // descend to v //
   while (edge_len(b) > 0) {
     child_index = SYMTABLE[(int)SEQ[b.top]];
     // go to child node
-    cur_node = start->children[child_index];
+    cur_node = cur_node->children[child_index];
     // decrement by path length of child
     b.top += edge_len(cur_node->edge_label);
   }
@@ -287,14 +288,13 @@ tree *create_tree() {
   for (int i = 0; i < SEQLEN; i++) {
     leaf = find_path(v, i + v->str_depth);
     v = suffix_cases(leaf);
-    if (DEBUG) {
+  }
+  if (DEBUG) {
       printf("-------------------------------------------------------------\n");
-      printf("INSERT %s\n\n", SEQ + i);
       print_tree(T->root);
       printf("BWT: ");
       BWT(T->root);
       printf("\n");
     }
-  }
   return T;
 }
