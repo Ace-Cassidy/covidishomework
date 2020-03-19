@@ -1,8 +1,7 @@
-
 /*
 CptS 471/571 Assignment Cover Sheet
 
-Assignment: Programming Project 1
+Assignment: Programming Project 2
 Authors: Cassidy, Ace
 Authors: Stoddard, Miranda
 
@@ -15,7 +14,7 @@ this assignment, and that I have not received or given any assistance that is
 contrary to the letter or the spirit of the collaboration guidelines for this
 assignment.
 
-Dated: January, 31, 2020
+Dated: March, 18, 2020
 */
 
 #pragma once
