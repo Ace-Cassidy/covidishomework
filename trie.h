@@ -29,7 +29,7 @@ Dated: March, 18, 2020
 
 // MACROS //
 #define NOEXIST -1
-#define DEBUG 0
+#define DEBUG 1
 // TYPES //
 
 typedef struct int_tuple {

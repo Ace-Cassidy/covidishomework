@@ -272,6 +272,82 @@ node *suffix_cases(node *leaf) {
   return v;
 }
 
+int count_internal_nodes(node * curr_node){
+  int count = 0;
+  if (curr_node == NULL){
+    return count;
+  }
+  if (curr_node->id < SEQLEN){
+    return count;
+  }
+  for (int i = 0; i < SYMSIZE; i++){
+    count += count_internal_nodes(curr_node->children[i]);
+  }
+  return count + 1;
+}
+
+int count_leaf_nodes(node * curr_node){
+  int count = 0;
+  if (curr_node == NULL){
+    return count;
+  }
+  for (int i = 0; i < SYMSIZE; i++){
+    count += count_leaf_nodes(curr_node->children[i]);
+  }
+  if (curr_node->id < SEQLEN){
+    return count + 1;
+  } 
+  else {
+    return count;
+  }
+}
+
+int find_deepest_internal(node *curr_node){
+  int max = 0;
+  int temp_max;
+  if (curr_node == NULL){
+    return 0;
+  }
+  if (curr_node->id < SEQLEN){
+    return 0;
+  }
+  for (int i = 0; i < SYMSIZE; i++){
+    temp_max = find_deepest_internal(curr_node->children[i]);
+    if (temp_max > max){
+     max = temp_max;
+    }
+  }
+
+  if (curr_node->str_depth > max){
+    return curr_node->str_depth;
+  }
+  else {
+    return max;
+  }
+}
+
+int add_depths(node *curr_node){
+  int total = 0;
+  if (curr_node == NULL){
+    return 0;
+  }
+  if (curr_node->id < SEQLEN){
+    return 0;
+  }
+  for (int i = 0; i < SYMSIZE; i++){
+    total += add_depths(curr_node->children[i]);
+  }
+
+  return total + curr_node->str_depth;
+}
+
+float find_average_depth(){
+  int total = add_depths(T->root);
+  int node_count = count_internal_nodes(T->root);
+  return (float)total / node_count;
+}
+
+
 // create_tree: insert all suffixes of sequence into tree
 tree *create_tree() {
   free(T);
@@ -279,7 +355,7 @@ tree *create_tree() {
   T->root = create_node();
   T->root->str_depth = 0;
   T->root->id = INTERNALID++;
-  T->root->edge_label = (int_tuple){0, -1};
+  T->root->edge_label = (int_tuple){-1, -1};
   T->root->parent = T->root;
   T->root->suff_link = T->root;
 
@@ -289,9 +365,19 @@ tree *create_tree() {
     leaf = find_path(v, i + v->str_depth);
     v = suffix_cases(leaf);
   }
-  if (DEBUG) {
-    printf("-------------------------------------------------------------\n");
-    print_tree(T->root);
-  }
+  return T;
+}
+
+tree *test(){
+  T = create_tree();
+  int internal_count = count_internal_nodes(T->root);
+  printf("Internal Nodes: %d\n", internal_count);
+  int leaf_count = count_leaf_nodes(T->root);
+  printf("Leaf Nodes: %d\n", leaf_count);
+  printf("Total Nodes: %d\n", internal_count + leaf_count);
+  int deepest_internal = find_deepest_internal(T->root);
+  printf("Deepest Internal Node: %d\n", deepest_internal);
+  float average_internal = find_average_depth(T->root);
+  printf("Average Depth of Internal Nodes: %f\n", average_internal);
   return T;
 }

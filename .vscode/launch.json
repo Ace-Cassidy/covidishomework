@@ -11,7 +11,8 @@
             "program": "${workspaceFolder}/trie",
             "args": [
                 "english-inputs/s1.fas",
-                "alphabets/English_alphabet.txt"
+                "alphabets/English_alphabet.txt",
+                "--debug"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -35,7 +36,8 @@
             "program": "${workspaceFolder}/trie",
             "args": [
                 "english-inputs/s2.fas",
-                "alphabets/English_alphabet.txt"
+                "alphabets/English_alphabet.txt",
+                "--debug"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -59,7 +61,8 @@
             "program": "${workspaceFolder}/trie",
             "args": [
                 "dna-inputs/Human-BRCA2-cds.fasta",
-                "alphabets/DNA_alphabet.txt"
+                "alphabets/DNA_alphabet.txt",
+                "--debug"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
