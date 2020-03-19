@@ -16,3 +16,8 @@ for file in dna-inputs/* ; do
   echo "$output"
   ("$(which time)" -v ./trie "$file" $alphabet > "$output") &> "$stats" 
 done
+
+for file in ref-outputs/* ; do
+  bname=${file##*/}
+  echo diff "$file" "outputs/${bname}"
+done
