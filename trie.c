@@ -379,5 +379,6 @@ tree *test(){
   printf("Deepest Internal Node: %d\n", deepest_internal);
   float average_internal = find_average_depth(T->root);
   printf("Average Depth of Internal Nodes: %f\n", average_internal);
+  printf("Size of Tree: %d\n", (leaf_count + internal_count) * (sizeof(node) + (SYMSIZE * 4) + 8)); 
   return T;
 }
