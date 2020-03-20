@@ -1,5 +1,7 @@
 Command timed: ./trie dna-inputs/Human-BRCA2-cds.fasta alphabets/DNA_alphabet.txt
 Elapsed Time (wallclock): 0.00
-Peak memory usage (kbytes): 3252
+Peak memory usage (kbytes): 3220
+CPU seconds (kernel): 0.00
+CPU seconds (user): 0.00
 Exit status: 0
 

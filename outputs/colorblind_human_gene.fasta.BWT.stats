@@ -1,5 +1,7 @@
 Command timed: ./trie dna-inputs/colorblind_human_gene.fasta alphabets/DNA_alphabet.txt
 Elapsed Time (wallclock): 0.00
-Peak memory usage (kbytes): 2016
+Peak memory usage (kbytes): 2020
+CPU seconds (kernel): 0.00
+CPU seconds (user): 0.00
 Exit status: 0
 

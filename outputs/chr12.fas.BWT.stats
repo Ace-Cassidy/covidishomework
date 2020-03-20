@@ -1,5 +1,7 @@
 Command timed: ./trie dna-inputs/chr12.fas alphabets/DNA_alphabet.txt
-Elapsed Time (wallclock): 1.23
-Peak memory usage (kbytes): 169272
+Elapsed Time (wallclock): 0.62
+Peak memory usage (kbytes): 169196
+CPU seconds (kernel): 0.04
+CPU seconds (user): 0.57
 Exit status: 0
 

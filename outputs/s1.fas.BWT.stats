@@ -1,5 +1,7 @@
 Command timed: ./trie english-inputs/s1.fas alphabets/English_alphabet.txt
 Elapsed Time (wallclock): 0.00
-Peak memory usage (kbytes): 1560
+Peak memory usage (kbytes): 1536
+CPU seconds (kernel): 0.00
+CPU seconds (user): 0.00
 Exit status: 0
 

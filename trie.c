@@ -122,8 +122,7 @@ void print_node(node *n) {
         printf("%-3d ", n->children[i]->id);
       }
     }
-    printf("\n               SFFLNK %-3d\n",
-           n->suff_link ? n->suff_link->id : -1);
+    printf("\nString Depth %d\n", n->str_depth);
     printf("\n");
   }
 }
@@ -138,6 +137,17 @@ void print_tree(node *n) {
       }
     }
   }
+}
+
+void print_post_order(node *n) {
+  if (n->children != NULL) {
+    for (int i = SYMSIZE - 1; i >= 0; i--) {
+      if (n->children[i] != NULL) {
+        print_tree(n->children[i]);
+      }
+    }
+  }
+  print_node(n);
 }
 
 // find_path: find/insert suffix and return leaf node
@@ -272,84 +282,78 @@ node *suffix_cases(node *leaf) {
   return v;
 }
 
-int count_internal_nodes(node * curr_node){
+int count_internal_nodes(node *curr_node) {
   int count = 0;
-  if (curr_node == NULL){
+  if (curr_node == NULL) {
     return count;
   }
-  if (curr_node->id < SEQLEN){
+  if (curr_node->id < SEQLEN) {
     return count;
   }
-  for (int i = 0; i < SYMSIZE; i++){
+  for (int i = 0; i < SYMSIZE; i++) {
     count += count_internal_nodes(curr_node->children[i]);
   }
   return count + 1;
 }
 
-int count_leaf_nodes(node * curr_node){
+int count_leaf_nodes(node *curr_node) {
   int count = 0;
-  if (curr_node == NULL){
+  if (curr_node == NULL) {
     return count;
   }
-  for (int i = 0; i < SYMSIZE; i++){
+  for (int i = 0; i < SYMSIZE; i++) {
     count += count_leaf_nodes(curr_node->children[i]);
   }
-  if (curr_node->id < SEQLEN){
+  if (curr_node->id < SEQLEN) {
     return count + 1;
-  } 
-  else {
+  } else {
     return count;
   }
 }
 
-int find_deepest_internal(node *curr_node){
-  int max = 0;
-  int temp_max;
-  if (curr_node == NULL){
+node *find_deepest_internal(node *curr_node) {
+  node *max = curr_node;
+  node *temp_max;
+  if (curr_node == NULL) {
     return 0;
   }
-  if (curr_node->id < SEQLEN){
+  if (curr_node->id < SEQLEN) {
     return 0;
   }
-  for (int i = 0; i < SYMSIZE; i++){
+  for (int i = 0; i < SYMSIZE; i++) {
     temp_max = find_deepest_internal(curr_node->children[i]);
-    if (temp_max > max){
-     max = temp_max;
+    if (temp_max != NULL) {
+      if (temp_max->str_depth > max->str_depth) {
+        max = temp_max;
+      }
     }
   }
-
-  if (curr_node->str_depth > max){
-    return curr_node->str_depth;
-  }
-  else {
-    return max;
-  }
+  return max;
 }
 
-int add_depths(node *curr_node){
+int add_depths(node *curr_node) {
   int total = 0;
-  if (curr_node == NULL){
+  if (curr_node == NULL) {
     return 0;
   }
-  if (curr_node->id < SEQLEN){
+  if (curr_node->id < SEQLEN) {
     return 0;
   }
-  for (int i = 0; i < SYMSIZE; i++){
+  for (int i = 0; i < SYMSIZE; i++) {
     total += add_depths(curr_node->children[i]);
   }
 
   return total + curr_node->str_depth;
 }
 
-float find_average_depth(){
+float find_average_depth() {
   int total = add_depths(T->root);
   int node_count = count_internal_nodes(T->root);
   return (float)total / node_count;
 }
 
-
 // create_tree: insert all suffixes of sequence into tree
-tree *create_tree() {
+tree *create_tree(char *sequence, char *alphabet) {
   free(T);
   T = (tree *)malloc(sizeof(tree));
   T->root = create_node();
@@ -368,17 +372,29 @@ tree *create_tree() {
   return T;
 }
 
-tree *test(){
-  T = create_tree();
+tree *test() {
+  T = create_tree(SEQ, "");
   int internal_count = count_internal_nodes(T->root);
   printf("Internal Nodes: %d\n", internal_count);
   int leaf_count = count_leaf_nodes(T->root);
   printf("Leaf Nodes: %d\n", leaf_count);
   printf("Total Nodes: %d\n", internal_count + leaf_count);
-  int deepest_internal = find_deepest_internal(T->root);
-  printf("Deepest Internal Node: %d\n", deepest_internal);
+  node *deepest_internal = find_deepest_internal(T->root);
+  printf("Deepest Internal Node: %d\n", deepest_internal->str_depth);
   float average_internal = find_average_depth(T->root);
   printf("Average Depth of Internal Nodes: %f\n", average_internal);
-  printf("Size of Tree: %d\n", (leaf_count + internal_count) * (sizeof(node) + (SYMSIZE * 4) + 8)); 
+  printf("Size of Tree: %ld\n",
+         (leaf_count + internal_count) * (sizeof(node) + (SYMSIZE * 4) + 8));
   return T;
+}
+
+void print_deepest() {
+  node *deep = find_deepest_internal(T->root);
+  int start = deep->edge_label.bottom - deep->str_depth + 1;
+  int end = deep->edge_label.bottom;
+  int_tuple longest;
+  longest.top = start;
+  longest.bottom = end;
+  print_edge(longest);
+  printf("\n");
 }

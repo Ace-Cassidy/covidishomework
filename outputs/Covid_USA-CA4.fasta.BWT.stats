@@ -1,5 +1,7 @@
 Command timed: ./trie dna-inputs/Covid_USA-CA4.fasta alphabets/DNA_alphabet.txt
-Elapsed Time (wallclock): 0.02
-Peak memory usage (kbytes): 6172
+Elapsed Time (wallclock): 0.01
+Peak memory usage (kbytes): 6100
+CPU seconds (kernel): 0.00
+CPU seconds (user): 0.01
 Exit status: 0
 

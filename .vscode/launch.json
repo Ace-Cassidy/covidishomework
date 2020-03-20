@@ -12,7 +12,7 @@
             "args": [
                 "english-inputs/s1.fas",
                 "alphabets/English_alphabet.txt",
-                "--debug"
+                "--repeat"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -62,7 +62,7 @@
             "args": [
                 "dna-inputs/Human-BRCA2-cds.fasta",
                 "alphabets/DNA_alphabet.txt",
-                "--debug"
+                "--bwt"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

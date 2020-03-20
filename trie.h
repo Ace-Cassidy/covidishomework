@@ -49,7 +49,7 @@ typedef struct tree {
 } tree;
 
 // GLOBALS //
-static tree *T;
+tree *T;
 
 static char *SEQ;
 static int SEQLEN;
@@ -66,6 +66,6 @@ node *create_node();
 node *find_path(node *, int);
 node *node_hops(node *, int_tuple);
 node *suffix_cases(node *);
-tree *create_tree();
+tree *create_tree(char *sequence, char *alphabet);
 void BWT(node *);
 void print_tree(node *);

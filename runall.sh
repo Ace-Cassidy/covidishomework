@@ -1,13 +1,15 @@
 #!/bin/bash
 
 TIMEFORMAT='Command timed: %C\nElapsed Time (wallclock): %e\nPeak memory usage (kbytes): %M\nExit status: %x\n'
+flag="--bwt"
 
 for file in english-inputs/* ; do
   output="outputs/${file##*/}.BWT.out"
   stats="outputs/${file##*/}.BWT.stats"
   alphabet="alphabets/English_alphabet.txt"
   echo "$output"
-  ("$(which time)" -f "$TIMEFORMAT" ./trie "$file" $alphabet > "$output") &> "$stats" 
+  ./trie "$file" $alphabet $flag > "$output" &&
+  ("$(which time)" -f "$TIMEFORMAT" ./trie "$file" $alphabet) &> "$stats" 
 done
 
 for file in dna-inputs/* ; do
@@ -15,7 +17,8 @@ for file in dna-inputs/* ; do
   stats="outputs/${file##*/}.BWT.stats"
   alphabet="alphabets/DNA_alphabet.txt"
   echo "$output"
-  ("$(which time)" -f "$TIMEFORMAT" ./trie "$file" $alphabet > "$output") &> "$stats" 
+  ./trie "$file" $alphabet $flag > "$output" &&
+  ("$(which time)" -f "$TIMEFORMAT" ./trie "$file" $alphabet) &> "$stats" 
 done
 
 for file in ref-outputs/* ; do
