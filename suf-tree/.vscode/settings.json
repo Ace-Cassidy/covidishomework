@@ -1,0 +1,32 @@
+{
+    "C_Cpp.clang_format_fallbackStyle": "llvm", //  use compact formatting
+    "C_Cpp.updateChannel": "Insiders", // get cpp beta features
+    "editor.autoClosingBrackets": "never", // don't complete brackets 
+    "editor.autoClosingQuotes": "never", // don't complete quotes
+    "editor.autoIndent": "full", // try to fix indentation during copy paste
+    "editor.cursorBlinking": "solid", // don't blink
+    "editor.minimap.enabled": false, // turn off code map
+    "editor.renderWhitespace": "selection", // show whitespace when highlighting
+    "editor.rulers": [
+        80
+    ], // visual guide for line limit
+    "editor.wordWrap": "on", // wrap long lines
+    "explorer.confirmDelete": false, // don't ask when i delete files
+    "explorer.confirmDragAndDrop": false, // don't ask when i move files
+    "git.autofetch": true, // periodically run git fetch
+    "git.enableSmartCommit": true, // git commit all changes automatically
+    "liveshare.joinDebugSessionOption": "Prompt",
+    "liveshare.showVerboseNotifications": false,
+    "telemetry.enableCrashReporter": false, // disable crash reporting
+    "telemetry.enableTelemetry": false, // disable telemetry
+    "terminal.integrated.fontSize": 13, // fix missing underscores
+    "terminal.integrated.rendererType": "dom",
+    "window.openFilesInNewWindow": "on",
+    "window.titleBarStyle": "custom", // save space on linux
+    "workbench.editor.enablePreview": false,
+    "files.associations": {
+        "cstdlib": "c",
+        "cmath": "c",
+        "*.tcc": "c"
+    }, // keep all taps open
+}

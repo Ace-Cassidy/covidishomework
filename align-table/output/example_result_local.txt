@@ -1,0 +1,16 @@
+Scoring: match = 1, mismatch = -2, open = -5, gap = -2
+
+S1 length = 125 characters
+S2 length = 111 characters
+
+S1 ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTAT
+   |||||| ||||   ||||||||||||||||||||||||||||| ||||||||||||||||      | ||    ||
+s2 ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTG______C_TA____AT
+
+S1 AACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT
+   ||||||||||||||||||| ||||||  ||| |||||||||||||||||
+s2 AACCGAGAACGATTGACATTCCTCGT__ACA_GCTACACGTACTCCGAT
+
+Local optimal score: 55
+matches = 105, mismatches = 6, gaps = 14, opening gaps = 2
+Identities = 105/125 (0.840), Gaps = 14/125 (0.112)

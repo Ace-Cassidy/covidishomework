@@ -1,7 +1,0 @@
-Command timed: ./trie dna-inputs/Covid_Wuhan.fasta alphabets/DNA_alphabet.txt
-Elapsed Time (wallclock): 0.00
-Peak memory usage (kbytes): 6084
-CPU seconds (kernel): 0.00
-CPU seconds (user): 0.00
-Exit status: 0
-
