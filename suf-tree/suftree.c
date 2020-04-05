@@ -17,7 +17,7 @@ assignment.
 Dated: March, 18, 2020
 */
 
-#include "trie.h"
+#include "suftree.h"
 
 // FUNCTIONS //
 

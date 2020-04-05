@@ -27,6 +27,7 @@
     "files.associations": {
         "cstdlib": "c",
         "cmath": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "suftree.h": "c"
     }, // keep all taps open
 }
