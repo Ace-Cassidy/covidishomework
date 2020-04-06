@@ -36,13 +36,19 @@ typedef struct int_tuple {
   int top, bottom;
 } int_tuple;
 
+typedef struct edge_ref {
+  int_tuple ref;
+  int seq_index;
+} edge_ref;
+
 typedef struct node {
   int str_depth;
   int id;
-  int_tuple edge_label;
+  edge_ref edge;
   struct node *parent;
   struct node *suff_link;
   struct node **children;
+  bool mixed;
 } node;
 
 typedef struct tree {
@@ -50,24 +56,25 @@ typedef struct tree {
 } tree;
 
 // GLOBALS //
-tree *T;
-
-static char *SEQ;
-static int SEQLEN;
+static node *ROOT;
+static char *SEQARR[100];
+static int SEQID = -1;
+static int CURSEQLEN;
 static int SYMTABLE[128]; // Number of ascii characters
 static int SYMSIZE;
-static int LEAFID;
-static int INTERNALID;
+static int LEAFID = 0;
+static int INTERNALID = 0;
 
 // FUNCTIONS //
-bool read_seq(FILE *);
 bool read_symtable(FILE *);
+int read_seq(FILE *);
 int edge_cmp(node *, int);
 node *create_node();
 node *find_path(node *, int);
-node *node_hops(node *, int_tuple);
+node *node_hops(node *, edge_ref);
 node *suffix_cases(node *);
-tree *create_tree(char *sequence, char *alphabet);
+tree *create_tree();
+tree *insert_seq(tree *t);
 tree *test();
 void BWT(node *);
 void print_deepest();
