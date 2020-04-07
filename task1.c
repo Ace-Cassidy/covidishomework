@@ -12,6 +12,7 @@ int main(int argc, char const *argv[]) {
     f = fopen(argv[i], "r");
     int seq_index = read_seq(f);
     insert_seq(t);
+    print_dotfile(t);
     fclose(f);
   }
 

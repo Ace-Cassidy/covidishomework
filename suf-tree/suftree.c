@@ -1,31 +1,25 @@
 /*
 CptS 471/571 Assignment Cover Sheet
 
-Assignment: Programming Project 2
+Assignment: Programming Project 3
 Authors: Cassidy, Ace
 Authors: Stoddard, Miranda
-
-https://gcc.gnu.org/onlinedocs/gcc-4.9.2/gcc/Typeof.html#Typeof
-https://stackoverflow.com/questions/3161054/static-and-external-variables
-
 
 I certify that I have listed above all the sources that I consulted regarding
 this assignment, and that I have not received or given any assistance that is
 contrary to the letter or the spirit of the collaboration guidelines for this
 assignment.
 
-Dated: March, 18, 2020
+Dated: April, 5, 2020
 */
 
 #include "suftree.h"
 
-// FUNCTIONS //
-
-// file parsing //
+// FILE PARSING //
 
 // read_seq: parse the given file for the first sequence found
 int read_seq(FILE *f) {
-  SEQID++;
+  CURSEQID++;
   char line[2000];
   fseek(f, 0L, SEEK_END);
   int sz = ftell(f);
@@ -40,12 +34,10 @@ int read_seq(FILE *f) {
   }
   strcat(s, "$");
   CURSEQLEN = strlen(s);
-  LEAFID = INTERNALID;
-  INTERNALID += CURSEQLEN;
   if (CURSEQLEN == 0)
     return false;
-  SEQARR[SEQID] = s;
-  return SEQID;
+  SEQARR[CURSEQID] = s;
+  return CURSEQID;
 }
 
 // read_symtable: parse the file for alphabet
@@ -57,7 +49,7 @@ bool read_symtable(FILE *f) {
   long fsize = ftell(f);
   fseek(f, 0, SEEK_SET); /* same as rewind(f); */
   char *string = malloc(fsize + 1);
-  fread(string, 1, fsize, f);
+  fread(string, 1, fsize, f) == fsize ?: printf("fail to read symtable");
   string[fsize] = 0; // null terminate
   SYMTABLE[(int)'$'] = 0;
   int id = 1; // $ has already taken 0th index
@@ -71,46 +63,7 @@ bool read_symtable(FILE *f) {
   return true;
 }
 
-// utility //
-
-// edge_len: return the length (inclusive) of an int tuple
-int edge_len(edge_ref e) { return e.ref.bottom - e.ref.top + 1; }
-
-// trie operations //
-
-// create_node: malloc and init node struct
-node *create_node() {
-  node *n = (node *)malloc(sizeof(node));
-  // init fields
-  *n = (node){.str_depth = NOEXIST,
-              .id = NOEXIST,
-              .edge = (edge_ref){NOEXIST, NOEXIST, SEQID},
-              .parent = NULL,
-              .suff_link = NULL,
-              .children = NULL,
-              .mixed = false};
-  return n;
-}
-
-node **create_children() {
-  node **children = (node **)malloc(sizeof(node *) * SYMSIZE);
-  for (int i = 0; i < SYMSIZE; i++)
-    children[i] = NULL;
-  return children;
-}
-
-// edge_cmp: return the index of first mismatch between edge and seq_index
-// returns edge_len if no mismatches (one past last index)
-int edge_cmp(node *n, int seq_index) {
-  int length = edge_len(n->edge);
-  for (int i = 0; i < length; i++) {
-    if (SEQARR[n->edge.seq_index][n->edge.ref.top + i] !=
-        SEQARR[SEQID][seq_index + i]) {
-      return i;
-    }
-  }
-  return length;
-}
+// TRIE OPERATIONS //
 
 // find_path: find/insert suffix and return leaf node
 node *find_path(node *n, int index) {
@@ -123,22 +76,22 @@ node *find_path(node *n, int index) {
     }
 
     // LOCATE NEXT NODE
-    char c = SEQARR[SEQID][index];
-    int child_index = SYMTABLE[(int)c];
-    if (child_index == NOEXIST) {
-      printf("%c isn't within the accepted alphabet.\n", c);
-      return NULL;
+    char c = SEQARR[CURSEQID][index];
+    int childno = SYMTABLE[(int)c];
+    if (childno == NOEXIST) {
+      printf("%c not in alphabet.\n", c);
+      exit(1);
     }
-    node *next = n->children[child_index];
+    node *next = n->children[childno];
 
     // NEW LEAF NODE
     if (next == NULL) {
       node *new_leaf = create_node();
-      n->children[child_index] = new_leaf;
+      n->children[childno] = new_leaf;
       new_leaf->edge.ref.top = index;
       new_leaf->edge.ref.bottom = CURSEQLEN - 1;
       new_leaf->str_depth = n->str_depth + ((CURSEQLEN)-index);
-      new_leaf->id = LEAFID++;
+      new_leaf->id = NODEID++;
       new_leaf->parent = n;
       return new_leaf;
     }
@@ -150,7 +103,7 @@ node *find_path(node *n, int index) {
       node *new_child = create_node();
       new_child->children = create_children();
       // change parent to point to new child
-      n->children[child_index] = new_child;
+      n->children[childno] = new_child;
       new_child->parent = n;
       next->parent = new_child;
       // set new childs edge label
@@ -159,10 +112,10 @@ node *find_path(node *n, int index) {
       // change old childs edge label to be shorter
       next->edge.ref.top = new_child->edge.ref.bottom + 1;
       // set new childs child to old child
-      new_child->children[SYMTABLE[SEQARR[next->edge.seq_index][next->edge.ref.top]]] =
-          next;
+      new_child->children
+          [SYMTABLE[SEQARR[next->edge.seq_index][next->edge.ref.top]]] = next;
       // set id
-      new_child->id = INTERNALID++;
+      new_child->id = NODEID++;
       // set strdepth
       new_child->str_depth = n->str_depth + mismatch;
       // set next to child
@@ -217,11 +170,11 @@ node *node_hops(node *start, edge_ref b) {
   // shorten cur nodes edge label
   cur_node->edge.ref.top = new_node->edge.ref.bottom + 1;
   // set new nodes child to cur_node
-  new_node
-      ->children[SYMTABLE[SEQARR[cur_node->edge.seq_index][cur_node->edge.ref.top]]] =
+  new_node->children
+      [SYMTABLE[SEQARR[cur_node->edge.seq_index][cur_node->edge.ref.top]]] =
       cur_node;
   // set new_node id
-  new_node->id = INTERNALID++;
+  new_node->id = NODEID++;
   // set strdepth
   new_node->str_depth = par_node->str_depth + break_depth;
   return new_node;
@@ -250,8 +203,8 @@ tree *create_tree() {
   t->root = create_node();
   t->root->children = create_children();
   t->root->str_depth = 0;
-  t->root->id = INTERNALID++;
-  t->root->edge.ref = (int_tuple){NOEXIST, NOEXIST};
+  t->root->id = NODEID++;
+  t->root->edge.ref = (int_tuple){0, -1};
   t->root->parent = t->root;
   t->root->suff_link = t->root;
   return t;
@@ -263,13 +216,62 @@ tree *insert_seq(tree *t) {
   node *leaf;
   node *v = t->root;
   for (int i = 0; i < CURSEQLEN; i++) {
-    leaf = find_path(ROOT, i);
-    // v = suffix_cases(leaf);
+    leaf = find_path(v, i + v->str_depth);
+    v = suffix_cases(leaf);
   }
   return t;
 }
 
-// stats //
+// UTILITY //
+
+void dfs(node *n, void (*func)(node *)) {
+  if (n->children != NULL) {
+    for (int i = 0; i < SYMSIZE; i++) {
+      if (n->children[i] != NULL) {
+        dfs(n->children[i], func);
+      }
+    }
+  }
+  func(n);
+}
+
+// edge_len: return the length (inclusive) of an int tuple
+int edge_len(edge_ref e) { return e.ref.bottom - e.ref.top + 1; }
+
+// edge_cmp: return the index of first mismatch between edge and seq_index
+// returns edge_len if no mismatches (one past last index)
+int edge_cmp(node *n, int seq_index) {
+  int length = edge_len(n->edge);
+  for (int i = 0; i < length; i++) {
+    if (SEQARR[n->edge.seq_index][n->edge.ref.top + i] !=
+        SEQARR[CURSEQID][seq_index + i]) {
+      return i;
+    }
+  }
+  return length;
+}
+
+// create_node: malloc and init node struct to default values
+node *create_node() {
+  node *n = (node *)malloc(sizeof(node));
+  *n = (node){.str_depth = NOEXIST,
+              .id = NOEXIST,
+              .edge = (edge_ref){NOEXIST, NOEXIST, CURSEQID},
+              .parent = NULL,
+              .suff_link = NULL,
+              .children = NULL,
+              .mixed = false};
+  return n;
+}
+// create_children: malloc and init array of child node pointers
+node **create_children() {
+  node **children = (node **)malloc(sizeof(node *) * SYMSIZE);
+  for (int i = 0; i < SYMSIZE; i++)
+    children[i] = NULL;
+  return children;
+}
+
+// STATS //
 
 node *find_deepest_internal(node *curr_node) {
   node *max = curr_node;
@@ -291,26 +293,12 @@ node *find_deepest_internal(node *curr_node) {
   return max;
 }
 
-int add_depths(node *curr_node) {
-  int total = 0;
-  if (curr_node == NULL) {
-    return 0;
-  }
-  if (curr_node->id < CURSEQLEN) {
-    return 0;
-  }
-  for (int i = 0; i < SYMSIZE; i++) {
-    total += add_depths(curr_node->children[i]);
-  }
+// PRINT //
 
-  return total + curr_node->str_depth;
-}
-
-// print //
-
-void print_edge(node *edge) {
-  for (int i = edge->edge.ref.top; i <= edge->edge.ref.bottom; i++) {
-    putchar(SEQARR[edge->edge.seq_index][i]);
+// print_edge: print the path label
+void print_edge(node *n) {
+  for (int i = n->edge.ref.top; i <= n->edge.ref.bottom; i++) {
+    putchar(SEQARR[n->edge.seq_index][i]);
   }
 }
 
@@ -331,24 +319,26 @@ void print_node(node *n) {
 }
 
 // print_tree: recursively prints nodes via DFS
-void print_tree(node *n) {
-  print_node(n);
-  if (n->children != NULL) {
-    for (int i = 0; i < SYMSIZE; i++) {
-      if (n->children[i] != NULL) {
-        print_tree(n->children[i]);
-      }
-    }
-  }
+void print_tree(tree *t) { dfs(t->root, print_node); }
+
+// print_dots: print the dotfile line for given node
+void print_dots(node *n) {
+  if (n == ROOT)
+    return;
+  char *seq = SEQARR[n->edge.seq_index];
+  char *label = seq + n->edge.ref.top;
+  int len = edge_len(n->edge);
+  if (len < 15)
+  fprintf(DOTFILE, "%d -> %d[label=\"%.*s\"];\n", n->parent->id, n->id, len, label);
+  else
+  fprintf(DOTFILE, "%d -> %d[label=\"%.*s...%.*s(%d)\"];\n", n->parent->id, n->id, 5, label, 5, label + len - 5, len);
 }
 
-void print_post_order(node *n) {
-  if (n->children != NULL) {
-    for (int i = SYMSIZE - 1; i >= 0; i--) {
-      if (n->children[i] != NULL) {
-        print_tree(n->children[i]);
-      }
-    }
-  }
-  print_node(n);
+// print_dotfile: creates a dotfile called graph.dot
+void print_dotfile(tree *t) {
+  DOTFILE = fopen("graph.dot", "w");
+  fprintf(DOTFILE, "digraph {\n");
+  dfs(t->root, print_dots);
+  fprintf(DOTFILE, "}\n");
+  fclose(DOTFILE);
 }

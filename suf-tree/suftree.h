@@ -1,20 +1,16 @@
 /*
 CptS 471/571 Assignment Cover Sheet
 
-Assignment: Programming Project 2
+Assignment: Programming Project 3
 Authors: Cassidy, Ace
 Authors: Stoddard, Miranda
-
-https://gcc.gnu.org/onlinedocs/gcc-4.9.2/gcc/Typeof.html#Typeof
-https://stackoverflow.com/questions/3161054/static-and-external-variables
-
 
 I certify that I have listed above all the sources that I consulted regarding
 this assignment, and that I have not received or given any assistance that is
 contrary to the letter or the spirit of the collaboration guidelines for this
 assignment.
 
-Dated: March, 18, 2020
+Dated: April, 5, 2020
 */
 
 #pragma once
@@ -58,25 +54,29 @@ typedef struct tree {
 // GLOBALS //
 static node *ROOT;
 static char *SEQARR[100];
-static int SEQID = -1;
+static int CURSEQID = -1;
 static int CURSEQLEN;
 static int SYMTABLE[128]; // Number of ascii characters
 static int SYMSIZE;
-static int LEAFID = 0;
-static int INTERNALID = 0;
+static int NODEID = 0;
+static FILE *DOTFILE;
 
 // FUNCTIONS //
-bool read_symtable(FILE *);
-int read_seq(FILE *);
-int edge_cmp(node *, int);
-node *create_node();
-node *find_path(node *, int);
-node *node_hops(node *, edge_ref);
-node *suffix_cases(node *);
+int read_seq(FILE *f);
+bool read_symtable(FILE *f);
+node *find_path(node *n,int index);
+node *node_hops(node *start,edge_ref b);
+node *suffix_cases(node *leaf);
 tree *create_tree();
 tree *insert_seq(tree *t);
-tree *test();
-void BWT(node *);
-void print_deepest();
-void print_post_order(node *n);
-void print_tree(node *);
+void dfs(node *n,void(*func)(node *));
+int edge_len(edge_ref e);
+int edge_cmp(node *n,int seq_index);
+node *create_node();
+node **create_children();
+node *find_deepest_internal(node *curr_node);
+void print_edge(node *n);
+void print_node(node *n);
+void print_tree(tree *t);
+void print_dots(node *n);
+void print_dotfile(tree *t);
