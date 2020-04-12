@@ -72,6 +72,7 @@ node *find_path(node *n, int index) {
 
     // FOUND NODE
     if (index == CURSEQLEN) {
+      n->mixed = true;
       return n;
     }
 
@@ -122,7 +123,7 @@ node *find_path(node *n, int index) {
       next = new_child;
     }
 
-    // RECURSE DOWN
+    // ITERATE DOWN
     index += mismatch;
     n = next;
   }
@@ -217,14 +218,104 @@ tree *insert_seq(tree *t) {
   node *v = t->root;
   for (int i = 0; i < CURSEQLEN; i++) {
     leaf = find_path(v, i + v->str_depth);
-    v = suffix_cases(leaf);
+    // v = suffix_cases(leaf);
   }
   return t;
 }
 
+node *fingerprint(node *n) {
+  // n is a mixed node shallower than last seen
+  if (n->str_depth <= TOPMIXED.str_depth && n->mixed) {
+    for (int i = 0; i < SYMSIZE; i++) {
+      // n has a child from our seq and the child is not mixed
+      if (n->children && n->children[i] &&
+          n->children[i]->edge.seq_index == FINGERPRINTSEQ &&
+          !n->children[i]->mixed) {
+        LASTCHAR = SEQARR[FINGERPRINTSEQ][n->children[i]->edge.ref.top];
+        TOPMIXED = *n;
+        break;
+      }
+    }
+  }
+  return &TOPMIXED;
+}
+
+node *get_topmixed(node *n, int curr_seq){
+  if (n->children != NULL) {
+    for (int i = 0; i < SYMSIZE; i++) {
+      if (n->children[i] != NULL) {
+        if (n->mixed && !n->children[i]->mixed && n->edge.seq_index == curr_seq){
+          if (n->str_depth < TOPMIXED.str_depth){
+            TOPMIXED = *n;
+          }
+        }
+        else{
+          get_topmixed(n->children[i], curr_seq);
+        }
+        
+      }
+    }
+  }
+  return &TOPMIXED;
+}
+
+char **get_fingerprints(tree *t) {
+  static char *fingerprints[100];
+  for (int i = 0; i <= CURSEQID; i++) {
+    FINGERPRINTSEQ = i;
+    TOPMIXED = (node){.str_depth = INT_MAX};
+    dfs(t->root, fingerprint);
+    // get_topmixed(t->root, FINGERPRINTSEQ);
+    char *fp = NULL;
+    if (TOPMIXED.str_depth == INT_MAX) {
+      fp = SEQARR[FINGERPRINTSEQ];
+      fingerprints[FINGERPRINTSEQ] = fp;
+      continue;
+    }
+    fp = get_pathlabel(&TOPMIXED);
+    fp[TOPMIXED.str_depth] = LASTCHAR;
+    fp[TOPMIXED.str_depth + 1] = '\0';
+    fingerprints[FINGERPRINTSEQ] = fp;
+  }
+  return fingerprints;
+}
+
 // UTILITY //
 
-void dfs(node *n, void (*func)(node *)) {
+void set_mixed(node *curr_node) {
+  int seq = curr_node->edge.seq_index;
+  for (int i = 0; i < SYMSIZE; i++) {
+    if (curr_node->children && curr_node->children[i]) {
+      set_mixed(curr_node->children[i]);
+      if (curr_node->children[i]->mixed == true) {
+        curr_node->mixed = true;
+      } else if (curr_node->children[i]->edge.seq_index !=
+                 curr_node->edge.seq_index) {
+        curr_node->mixed = true;
+      }
+    }
+  }
+}
+
+tree *label_tree(tree *t) {
+  set_mixed(t->root);
+  return t;
+}
+
+node *dfs_mixed(node * curr_node){
+  for (int i = 0; i < SYMSIZE; i++) {
+    if (curr_node->children && curr_node->children[i]) {
+      if (curr_node->children[i]->mixed == true) {
+        curr_node->mixed = true;
+      } else if (curr_node->children[i]->edge.seq_index !=
+                 curr_node->edge.seq_index) {
+        curr_node->mixed = true;
+      }
+    }
+  }
+}
+
+node *dfs(node *n, node *(*func)(node *)) {
   if (n->children != NULL) {
     for (int i = 0; i < SYMSIZE; i++) {
       if (n->children[i] != NULL) {
@@ -232,7 +323,7 @@ void dfs(node *n, void (*func)(node *)) {
       }
     }
   }
-  func(n);
+  return func(n);
 }
 
 // edge_len: return the length (inclusive) of an int tuple
@@ -271,29 +362,22 @@ node **create_children() {
   return children;
 }
 
-// STATS //
-
-node *find_deepest_internal(node *curr_node) {
-  node *max = curr_node;
-  node *temp_max;
-  if (curr_node == NULL) {
-    return 0;
-  }
-  if (curr_node->id < CURSEQLEN) {
-    return 0;
-  }
-  for (int i = 0; i < SYMSIZE; i++) {
-    temp_max = find_deepest_internal(curr_node->children[i]);
-    if (temp_max != NULL) {
-      if (temp_max->str_depth > max->str_depth) {
-        max = temp_max;
-      }
-    }
-  }
-  return max;
-}
-
 // PRINT //
+
+char *get_pathlabel(node *n) {
+  char *label =
+      (char *)malloc(sizeof(char) * n->edge.ref.bottom - (n->str_depth - 1));
+  while (n != ROOT) {
+    char *temp = (char *)malloc(sizeof(char) * edge_len(n->edge));
+    strncpy(temp, &(SEQARR[n->edge.seq_index][n->edge.ref.top]), edge_len(n->edge));
+    rev_str(temp);
+    strcat(label, temp);
+    n = n->parent;
+    free(temp);
+  }
+  rev_str(label);
+  return label;
+}
 
 // print_edge: print the path label
 void print_edge(node *n) {
@@ -303,7 +387,7 @@ void print_edge(node *n) {
 }
 
 // print_node: pretty print the given node
-void print_node(node *n) {
+node *print_node(node *n) {
   if (n->children != NULL) {
     print_edge(n);
     printf(" (%d)\n", n->str_depth);
@@ -316,22 +400,26 @@ void print_node(node *n) {
     printf("\nString Depth %d\n", n->str_depth);
     printf("\n");
   }
+  return n;
 }
 
 // print_tree: recursively prints nodes via DFS
 void print_tree(tree *t) { dfs(t->root, print_node); }
 
 // print_dots: print the dotfile line for given node
-void print_dots(node *n) {
+node *print_dots(node *n) {
   if (n == ROOT)
-    return;
+    return n;
   char *seq = SEQARR[n->edge.seq_index];
   char *label = seq + n->edge.ref.top;
   int len = edge_len(n->edge);
   if (len < 15)
-  fprintf(DOTFILE, "%d -> %d[label=\"%.*s\"];\n", n->parent->id, n->id, len, label);
+    fprintf(DOTFILE, "%d -> %d[label=\"%.*s\"];\n", n->parent->id, n->id, len,
+            label);
   else
-  fprintf(DOTFILE, "%d -> %d[label=\"%.*s...%.*s(%d)\"];\n", n->parent->id, n->id, 5, label, 5, label + len - 5, len);
+    fprintf(DOTFILE, "%d -> %d[label=\"%.*s...%.*s(%d)\"];\n", n->parent->id,
+            n->id, 5, label, 5, label + len - 5, len);
+  return n;
 }
 
 // print_dotfile: creates a dotfile called graph.dot

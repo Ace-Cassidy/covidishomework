@@ -7,15 +7,19 @@ int main(int argc, char const *argv[]) {
   FILE *f = fopen(argv[1], "r");
   read_symtable(f);
   fclose(f);
-  tree * t = create_tree();
+  int seq_id;
+  tree *t = create_tree();
   for (int i = 2; i < argc; i++) {
     f = fopen(argv[i], "r");
-    int seq_index = read_seq(f);
+    seq_id = read_seq(f);
     insert_seq(t);
-    print_dotfile(t);
     fclose(f);
   }
-
-  printf("hello world\n");
+  // label_tree(t);
+  dfs(t->root, dfs_mixed);
+  char **seq_fps = get_fingerprints(t);
+  for (int i = 0; i <= seq_id; i++)
+    printf("fingerprint %d: %s\n", i, seq_fps[i]);
+  printf("complete task1\n");
   return 0;
 }

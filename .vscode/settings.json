@@ -15,8 +15,6 @@
     "explorer.confirmDragAndDrop": false, // don't ask when i move files
     "git.autofetch": true, // periodically run git fetch
     "git.enableSmartCommit": true, // git commit all changes automatically
-    "liveshare.joinDebugSessionOption": "Prompt",
-    "liveshare.showVerboseNotifications": false,
     "telemetry.enableCrashReporter": false, // disable crash reporting
     "telemetry.enableTelemetry": false, // disable telemetry
     "terminal.integrated.fontSize": 13, // fix missing underscores
