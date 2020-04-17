@@ -275,7 +275,6 @@ char **get_fingerprints(tree *t) {
     fp[TOPMIXED.str_depth] = LASTCHAR;
     fp[TOPMIXED.str_depth + 1] = '\0';
     fingerprints[FINGERPRINTSEQ] = fp;
-    printf("Fingerprint: %s\n", fingerprints[FINGERPRINTSEQ]);
   }
   return fingerprints;
 }
@@ -328,7 +327,7 @@ node *dfs(node *n, node *(*func)(node *)) {
 
 // edge_len: return the length (inclusive) of an int tuple
 int edge_len(edge_ref e) { 
-  int length = e.ref.bottom - e.ref.top + 1;
+  int length = (e.ref.bottom - e.ref.top) + 1;
   return length;
 }
 
@@ -369,9 +368,9 @@ node **create_children() {
 
 char *get_pathlabel(node *n) {
   char *label =
-      (char *)malloc(sizeof(char) * n->edge.ref.bottom - (n->str_depth - 1));
+      (char *)calloc((n->str_depth + 1), sizeof(char));
   while (n != ROOT) {
-    char *temp = (char *)malloc(sizeof(char) * (edge_len(n->edge) + 1));
+    char *temp = (char *)calloc(edge_len(n->edge), sizeof(char));
     strncpy(temp, &(SEQARR[n->edge.seq_index][n->edge.ref.top]), edge_len(n->edge));
     rev_str(temp);
     strcat(label, temp);
