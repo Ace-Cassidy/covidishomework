@@ -108,10 +108,10 @@ node *find_path(node *n, int index) {
       new_child->parent = n;
       next->parent = new_child;
       // set new childs edge label
-      new_child->edge.ref.top = next->edge.ref.top;
-      new_child->edge.ref.bottom = next->edge.ref.top + mismatch - 1;
+      new_child->edge.ref.top = index;
+      new_child->edge.ref.bottom = index + mismatch - 1;
       // change old childs edge label to be shorter
-      next->edge.ref.top = new_child->edge.ref.bottom + 1;
+      next->edge.ref.top = next->edge.ref.top + mismatch;
       // set new childs child to old child
       new_child->children
           [SYMTABLE[SEQARR[next->edge.seq_index][next->edge.ref.top]]] = next;
@@ -251,8 +251,7 @@ node *get_topmixed(node *n, int curr_seq){
         }
         else{
           get_topmixed(n->children[i], curr_seq);
-        }
-        
+        }        
       }
     }
   }
@@ -276,6 +275,7 @@ char **get_fingerprints(tree *t) {
     fp[TOPMIXED.str_depth] = LASTCHAR;
     fp[TOPMIXED.str_depth + 1] = '\0';
     fingerprints[FINGERPRINTSEQ] = fp;
+    printf("Fingerprint: %s\n", fingerprints[FINGERPRINTSEQ]);
   }
   return fingerprints;
 }
@@ -327,7 +327,10 @@ node *dfs(node *n, node *(*func)(node *)) {
 }
 
 // edge_len: return the length (inclusive) of an int tuple
-int edge_len(edge_ref e) { return e.ref.bottom - e.ref.top + 1; }
+int edge_len(edge_ref e) { 
+  int length = e.ref.bottom - e.ref.top + 1;
+  return length;
+}
 
 // edge_cmp: return the index of first mismatch between edge and seq_index
 // returns edge_len if no mismatches (one past last index)
@@ -368,7 +371,7 @@ char *get_pathlabel(node *n) {
   char *label =
       (char *)malloc(sizeof(char) * n->edge.ref.bottom - (n->str_depth - 1));
   while (n != ROOT) {
-    char *temp = (char *)malloc(sizeof(char) * edge_len(n->edge));
+    char *temp = (char *)malloc(sizeof(char) * (edge_len(n->edge) + 1));
     strncpy(temp, &(SEQARR[n->edge.seq_index][n->edge.ref.top]), edge_len(n->edge));
     rev_str(temp);
     strcat(label, temp);
