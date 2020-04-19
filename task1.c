@@ -12,11 +12,11 @@ int main(int argc, char const *argv[]) {
   for (int i = 2; i < argc; i++) {
     f = fopen(argv[i], "r");
     seq_id = read_seq(f);
-    insert_seq(t);
+    insert_seq(t, i - 2);
     fclose(f);
   }
-  // label_tree(t);
-  dfs(t->root, dfs_mixed);
+
+  dfs(t->root, dfs_set_mixed);
   char **seq_fps = get_fingerprints(t);
   for (int i = 0; i <= seq_id; i++)
     printf("fingerprint %d: %s\n", i, seq_fps[i]);

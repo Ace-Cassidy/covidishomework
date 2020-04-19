@@ -122,16 +122,6 @@ int matchiness(int i, int j) {
   return a == b ? MATCH : MISMATCH;
 };
 
-// rev_str: reverse string in place
-void rev_str(char *s) {
-  char c, *right = s + strlen(s), *left = s;
-  while (--right > left) {
-    c = *left;
-    *left++ = *right;
-    *right = c;
-  }
-}
-
 // ALIGNMENT FUNCTIONS //
 
 // allocate_table: dynamically allocate 2D array

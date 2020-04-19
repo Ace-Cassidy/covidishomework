@@ -8,7 +8,7 @@
             "name": "debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/t1",
+            "program": "${workspaceFolder}/t2",
             "args": [
                 "data/alphabets/DNA_alphabet.txt",
                 "data/dna-inputs/*.fasta"

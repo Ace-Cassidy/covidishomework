@@ -16,6 +16,7 @@ Dated: April, 5, 2020
 #pragma once
 
 // INCUDES //
+#include "../utility/utility.h"
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -61,29 +62,32 @@ static int SYMSIZE;
 static int NODEID = 0;
 static FILE *DOTFILE;
 static int FINGERPRINTSEQ;
-static node TOPMIXED ;
+static node TOPMIXED;
+static node BOTMIXED;
 static char LASTCHAR;
 
 // FUNCTIONS //
-int read_seq(FILE *f);
 bool read_symtable(FILE *f);
-node *find_path(node *n, int index);
-node *node_hops(node *start, edge_ref b);
-node *suffix_cases(node *leaf);
-tree *create_tree();
-tree *insert_seq(tree *t);
-node *dfs(node *n, node *(*func)(node *));
-int edge_len(edge_ref e);
-int edge_cmp(node *n, int seq_index);
-node *create_node();
-node **create_children();
-node *find_deepest_internal(node *curr_node);
-tree *label_tree(tree *t);
-void print_edge(node *n);
-node *print_node(node *n);
-void print_tree(tree *t);
-node *print_dots(node *n);
-void print_dotfile(tree *t);
 char **get_fingerprints(tree *t);
 char *get_pathlabel(node *n);
-node *dfs_mixed(node * curr_node);
+int edge_cmp(node *n, int seq_index);
+int edge_len(edge_ref e);
+int read_seq(FILE *f);
+node **create_children();
+node *create_node();
+node *dfs_lowest_mixed2(node *curr_node);
+node *dfs_set_mixed(node *curr_node);
+node *dfs(node *n, node *(*func)(node *));
+node *find_deepest_internal(node *curr_node);
+node *find_path(node *n, int index);
+node *lcs(tree *t);
+node *node_hops(node *start, edge_ref b);
+node *print_dots(node *n);
+node *print_node(node *n);
+node *suffix_cases(node *leaf);
+tree *create_tree();
+tree *insert_seq(tree *t, int seqid);
+void print_dotfile(tree *t);
+void print_edge(node *n);
+void print_tree(tree *t);
+void free_tree(tree *t);

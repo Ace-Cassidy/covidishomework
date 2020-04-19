@@ -17,12 +17,14 @@ Dated: April, 5, 2020
 
 // INCUDES //
 #pragma region
+#include "../utility/utility.h"
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
 #pragma endregion
 
 // MACROS //

@@ -198,24 +198,13 @@ node *suffix_cases(node *leaf) {
   return v;
 }
 
-// create_tree: insert all suffixes of sequence into tree
-tree *create_tree() {
-  tree *t = (tree *)malloc(sizeof(tree));
-  t->root = create_node();
-  t->root->children = create_children();
-  t->root->str_depth = 0;
-  t->root->id = NODEID++;
-  t->root->edge.ref = (int_tuple){0, -1};
-  t->root->parent = t->root;
-  t->root->suff_link = t->root;
-  return t;
-}
-
 // insert_seq: inserts currently read in seq
-tree *insert_seq(tree *t) {
+tree *insert_seq(tree *t, int seqid) {
   ROOT = t->root;
   node *leaf;
   node *v = t->root;
+  CURSEQID = seqid;
+  CURSEQLEN = strlen(SEQARR[seqid]);
   for (int i = 0; i < CURSEQLEN; i++) {
     leaf = find_path(v, i + v->str_depth);
     // v = suffix_cases(leaf);
@@ -240,18 +229,18 @@ node *fingerprint(node *n) {
   return &TOPMIXED;
 }
 
-node *get_topmixed(node *n, int curr_seq){
+node *get_topmixed(node *n, int curr_seq) {
   if (n->children != NULL) {
     for (int i = 0; i < SYMSIZE; i++) {
       if (n->children[i] != NULL) {
-        if (n->mixed && !n->children[i]->mixed && n->edge.seq_index == curr_seq){
-          if (n->str_depth < TOPMIXED.str_depth){
+        if (n->mixed && !n->children[i]->mixed &&
+            n->edge.seq_index == curr_seq) {
+          if (n->str_depth < TOPMIXED.str_depth) {
             TOPMIXED = *n;
           }
-        }
-        else{
+        } else {
           get_topmixed(n->children[i], curr_seq);
-        }        
+        }
       }
     }
   }
@@ -281,27 +270,8 @@ char **get_fingerprints(tree *t) {
 
 // UTILITY //
 
-void set_mixed(node *curr_node) {
-  int seq = curr_node->edge.seq_index;
-  for (int i = 0; i < SYMSIZE; i++) {
-    if (curr_node->children && curr_node->children[i]) {
-      set_mixed(curr_node->children[i]);
-      if (curr_node->children[i]->mixed == true) {
-        curr_node->mixed = true;
-      } else if (curr_node->children[i]->edge.seq_index !=
-                 curr_node->edge.seq_index) {
-        curr_node->mixed = true;
-      }
-    }
-  }
-}
-
-tree *label_tree(tree *t) {
-  set_mixed(t->root);
-  return t;
-}
-
-node *dfs_mixed(node * curr_node){
+// dfs_mixed: mark nodes as mixed or not mixed
+node *dfs_set_mixed(node *curr_node) {
   for (int i = 0; i < SYMSIZE; i++) {
     if (curr_node->children && curr_node->children[i]) {
       if (curr_node->children[i]->mixed == true) {
@@ -314,6 +284,35 @@ node *dfs_mixed(node * curr_node){
   }
 }
 
+node *dfs_free(node *curr_node) {
+  free(curr_node->children);
+  free(curr_node);
+  return NULL;
+}
+
+void free_tree(tree *t) {
+  dfs(t->root, dfs_free);
+  free(t);
+}
+
+node *lcs(tree *t) {
+  dfs(t->root, dfs_set_mixed);
+  BOTMIXED = (node){.str_depth = INT_MIN};
+  dfs(t->root, dfs_lowest_mixed2);
+  return &BOTMIXED;
+}
+
+// dfs_lowest_mixed2: find the lcs of two sequences in a tree
+// given as an argument to dfs
+node *dfs_lowest_mixed2(node *curr_node) {
+  if (curr_node) {
+    if (curr_node->mixed && curr_node->str_depth > BOTMIXED.str_depth) {
+      BOTMIXED = *curr_node;
+    }
+  }
+}
+
+// dfs: call func on each node in dfs order
 node *dfs(node *n, node *(*func)(node *)) {
   if (n->children != NULL) {
     for (int i = 0; i < SYMSIZE; i++) {
@@ -326,7 +325,7 @@ node *dfs(node *n, node *(*func)(node *)) {
 }
 
 // edge_len: return the length (inclusive) of an int tuple
-int edge_len(edge_ref e) { 
+int edge_len(edge_ref e) {
   int length = (e.ref.bottom - e.ref.top) + 1;
   return length;
 }
@@ -342,6 +341,19 @@ int edge_cmp(node *n, int seq_index) {
     }
   }
   return length;
+}
+
+// create_tree: insert all suffixes of sequence into tree
+tree *create_tree() {
+  tree *t = (tree *)malloc(sizeof(tree));
+  t->root = create_node();
+  t->root->children = create_children();
+  t->root->str_depth = 0;
+  t->root->id = NODEID++;
+  t->root->edge.ref = (int_tuple){0, -1};
+  t->root->parent = t->root;
+  t->root->suff_link = t->root;
+  return t;
 }
 
 // create_node: malloc and init node struct to default values
@@ -367,11 +379,11 @@ node **create_children() {
 // PRINT //
 
 char *get_pathlabel(node *n) {
-  char *label =
-      (char *)calloc((n->str_depth + 1), sizeof(char));
+  char *label = (char *)calloc((n->str_depth + 1), sizeof(char));
   while (n != ROOT) {
     char *temp = (char *)calloc(edge_len(n->edge), sizeof(char));
-    strncpy(temp, &(SEQARR[n->edge.seq_index][n->edge.ref.top]), edge_len(n->edge));
+    strncpy(temp, &(SEQARR[n->edge.seq_index][n->edge.ref.top]),
+            edge_len(n->edge));
     rev_str(temp);
     strcat(label, temp);
     n = n->parent;
