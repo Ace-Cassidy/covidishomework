@@ -15,6 +15,22 @@ Dated: April, 5, 2020
 
 #include "suftree.h"
 
+// GETTER/SETTER //
+
+int get_SYMSIZE() { return SYMSIZE; }
+
+node *get_ROOT() { return ROOT; }
+char **get_SEQARR() { return SEQARR; }
+int get_CURSEQID() { return CURSEQID; }
+int get_CURSEQLEN() { return CURSEQLEN; }
+int *get_SYMTABLE() { return SYMTABLE; }
+int get_NODEID() { return NODEID; }
+FILE *get_DOTFILE() { return DOTFILE; }
+int get_FINGERPRINTSEQ() { return FINGERPRINTSEQ; }
+node get_TOPMIXED() { return TOPMIXED; }
+node get_BOTMIXED() { return BOTMIXED; }
+char get_LASTCHAR() { return LASTCHAR; }
+
 // FILE PARSING //
 
 // read_seq: parse the given file for the first sequence found

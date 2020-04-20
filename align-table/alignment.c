@@ -32,6 +32,24 @@ int set_MISMATCH(int mismatch) { return MISMATCH = mismatch; }
 
 // Stats
 int get_OPTSCORE(void) { return OPTSCORE; }
+int get_TABLEMAX(TABLE *T) {
+  int max = INT_MIN;
+  for (int n = 0; n < T->rows_i; n++) {
+    for (int m = 0; m < T->cols_j; m++) {
+      int D = T->cell[n][m].D;
+      int S = T->cell[n][m].S;
+      int I = T->cell[n][m].I;
+      if (D > max)
+        max = D;
+      if (S > max)
+        max = S;
+      if (I > max)
+        max = I;
+    }
+  }
+  TABLEMAX = max;
+  return max;
+}
 int get_NMATCHES(void) { return NMATCHES; }
 int get_NMISMATCHES(void) { return NMISMATCHES; }
 int get_NGAPS(void) { return NGAPS; }
@@ -113,7 +131,7 @@ void print_result() {
          ((float)NMATCHES / len), NGAPS, len, ((float)NGAPS / len));
 }
 
-// UTILITY //
+// UTILITY //t
 
 // M: calculate match or  mismatch from table indices
 int matchiness(int i, int j) {
@@ -127,11 +145,18 @@ int matchiness(int i, int j) {
 // allocate_table: dynamically allocate 2D array
 bool allocate_table(TABLE *T) {
   T->rows_i = strlen(S1_i) + 1, T->cols_j = strlen(S2_j) + 1;
-  if (!(T->cell = (CELL **)malloc(T->rows_i * sizeof(CELL *))))
+  if (!(T->cell = (CELL **)calloc(T->rows_i, sizeof(CELL *))))
     return false;
   for (int i = 0; i < T->rows_i; i++)
-    if (!(T->cell[i] = (CELL *)malloc(T->cols_j * sizeof(CELL))))
+    if (!(T->cell[i] = (CELL *)calloc(T->cols_j, sizeof(CELL))))
       return false;
+  return true;
+}
+
+bool free_table(TABLE *T) {
+  for (int i = 0; i < T->rows_i; i++)
+    free(T->cell[i]);
+  free(T->cell);
   return true;
 }
 

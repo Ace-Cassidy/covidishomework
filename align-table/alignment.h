@@ -64,7 +64,7 @@ static bool ISLOCAL = false;
 static int GAP = 0, OPEN = 0, MATCH = 0, MISMATCH = 0;
 // alignment stats
 static int OPTSCORE = NEG_INF, OPTIMAL_J = NEG_INF, OPTIMAL_I = NEG_INF,
-           NMATCHES, NMISMATCHES, NGAPS, NOPENINGS;
+           NMATCHES, NMISMATCHES, NGAPS, NOPENINGS, TABLEMAX = INT_MIN;
 // sequences
 static char *S1_i = NULL, *S2_j = NULL, *TRACE_S1 = NULL, *TRACE_S2 = NULL,
             *TRACE_COMPARE = NULL;
@@ -77,6 +77,7 @@ void print_result();
 void align(TABLE T);
 
 bool allocate_table(TABLE *T);
+bool free_table(TABLE *T);
 bool read_SEQS(FILE *f);
 bool read_CNFG(FILE *f);
 
@@ -85,6 +86,7 @@ int get_NGAPS(void);
 int get_NMISMATCHES(void);
 int get_NMATCHES(void);
 int get_OPTSCORE(void);
+int get_TABLEMAX(TABLE *T);
 
 int set_MISMATCH(int mismatch);
 int set_MATCH(int match);

@@ -91,3 +91,16 @@ void print_dotfile(tree *t);
 void print_edge(node *n);
 void print_tree(tree *t);
 void free_tree(tree *t);
+int get_SYMSIZE();
+
+node *get_ROOT();
+char **get_SEQARR();
+int get_CURSEQID();
+int get_CURSEQLEN();
+int *get_SYMTABLE();
+int get_NODEID();
+FILE *get_DOTFILE();
+int get_FINGERPRINTSEQ();
+node get_TOPMIXED();
+node get_BOTMIXED();
+char get_LASTCHAR();
