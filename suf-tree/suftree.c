@@ -235,7 +235,7 @@ node *fingerprint(node *n) {
       // n has a child from our seq and the child is not mixed
       if (n->children && n->children[i] &&
           n->children[i]->edge.seq_index == FINGERPRINTSEQ &&
-          !n->children[i]->mixed) {
+          !n->children[i]->mixed && n->children[i]->edge.ref.top != strlen(SEQARR[FINGERPRINTSEQ]) - 1) {
         LASTCHAR = SEQARR[FINGERPRINTSEQ][n->children[i]->edge.ref.top];
         TOPMIXED = *n;
         break;

@@ -45,6 +45,7 @@ int main(int argc, char const *argv[]) {
       // find indices s_j_start, s_j_end
       // find length B for LCS of s_i s_j
       int lcs_len = n->str_depth;
+      printf("Strlen[%d][%d] = %d\n", i, j, lcs_len);
       int index = n->edge.seq_index;
       edge_ref lcs_i;
       lcs_i.seq_index = i;

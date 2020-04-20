@@ -1,0 +1,20 @@
+begin task1
+fingerprint 0: GTACCCCA
+fingerprint 0 len: 8
+fingerprint 1: GCGCTCG
+fingerprint 1 len: 7
+fingerprint 2: GTCTTTTC
+fingerprint 2 len: 8
+fingerprint 3: TGACTTAC
+fingerprint 3 len: 8
+fingerprint 4: GTACAGTGAACAATGCTAGGGAGAGCTGCCTATATGGAAGAGCCCTAATGTGTAAAATTAATTTTAGTAGTGCTATCCCCATGTGATTTTAATAGCTTCTTAGGAGAATGACAAAAAAAAAAAAA
+fingerprint 4 len: 125
+fingerprint 5: TCCCCC
+fingerprint 5 len: 6
+fingerprint 6: GTCCCC
+fingerprint 6 len: 6
+fingerprint 7: T$
+fingerprint 7 len: 2
+fingerprint 8: TCTGCCC
+fingerprint 8 len: 7
+complete task1
