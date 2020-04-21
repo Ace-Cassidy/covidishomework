@@ -22,5 +22,5 @@ Invoke these programs as
 
 Note that ```data/dna-inputs/MERS_2012_KF600620.fasta.ignore``` is not picked up
 by the ```*.fasta``` glob star, this file is excluded due to its containing
-ambiguos reads. We felt that it was easiest to simply exclude this file from our
+ambiguous reads. We felt that it was easiest to simply exclude this file from our
 analysis, rather than substituting arbitrary base pairs into the sequence.

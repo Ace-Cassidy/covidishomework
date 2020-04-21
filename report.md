@@ -1,3 +1,8 @@
+---
+geometry: margin=2cm
+output: pdf_document
+---
+
 # CPTS471 PA3 Report
 
 ---
@@ -125,7 +130,6 @@ In addition, for task 2 performance, report the length of the longest common sub
 | MU       | X  | X     | X     | X     | X     | X  | X    | 20  | 20   |
 | SG       | X  | X     | X     | X     | X     | X  | X    | X   | 7878 |
 | SM       | X  | X     | X     | X     | X     | X  | X    | X   | X    |
-
 
 * CA = Covid_Australia
 * CB = Covid_Brazil
